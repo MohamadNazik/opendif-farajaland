@@ -137,12 +137,11 @@ detect_host_ip() {
             fi
         done
     elif [[ "$OSTYPE" == msys* ]] || [[ "$OSTYPE" == cygwin* ]] || [[ "$OSTYPE" == win32 ]]; then
-        # Windows (Git Bash / MSYS / Cygwin) - hostname -I is not supported here,        # so parse the IPv4 address from Windows `pconfig`        ip=$(ipconfig 2>/dev/null | grep -a "IPv4" | grep -oE "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | head -1)
-        if [ -n "$ip" ] && [[ $ip =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
-            echo "$ip"
-            return 0
-        fi
-        # Fall back to Docker Desktop's host alias if we couldn't parse an IP.
+        # Windows (Git Bash / MSYS / Cygwin) - `ipconfig` output ordering isn't
+        # stable (virtual adapters like Hyper-V/WSL can list before the real
+        # LAN adapter), so parsing it is unreliable. Docker Desktop registers
+        # host.docker.internal in the Windows hosts file too, so it resolves
+        # correctly from both the host shell and from inside containers.
         echo "host.docker.internal"
         return 0
     else
