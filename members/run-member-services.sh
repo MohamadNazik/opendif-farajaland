@@ -188,7 +188,8 @@ run_drp() {
     fi
 
     print_step "Starting DRP API container..."
-    docker run -d \
+    # MSYS_NO_PATHCONV avoids Git Bash mangling the -v host:container:mode volume spec on Windows.
+    MSYS_NO_PATHCONV=1 docker run -d \
         --name "$DRP_CONTAINER" \
         -p 9090:9090 \
         -v "${DRP_DIR}/Config.toml:/home/ballerina/Config.toml:ro" \
